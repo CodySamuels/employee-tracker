@@ -148,7 +148,7 @@ function readEntry() {
 //   })
 // }
 
-addDepartment("Sales")
-addRole("Sales Manager", 60000, 3)
-addEmployee("Wade", "Boggs", 4, null)
+// addDepartment("Sales")
+addRole("Sales Associate", 2, 1)
+addEmployee("Testing", "Doe", 2, 1)
 readEntry()
