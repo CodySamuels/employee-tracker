@@ -18,33 +18,67 @@ var connection = mysql.createConnection({
 connection.connect(function(err) {
   if (err) throw err;
   console.log("connected as id " + connection.threadId);
-  readEntry();
+//   readEntry();
 });
-
-
 
 // 
 // =======================================================
 
-// function createEntry(item,category,bid) {
-// //   console.log("Inserting a new entry...\n");
-//   var query = connection.query(
-//     "INSERT INTO item SET ?",
-//     {
-//       title: title,
-//       artist: artist,
-//       genre: genre,
-//     },
-//     function(err, res) {
-//       if (err) throw err;
-//       console.log(res.affectedRows + " entry inserted!\n");
-//       // Call updateProduct AFTER the INSERT completes
-//     }
-//   );
+function addEmployee(first_name, last_name, role_id, manager_id) {
+//   console.log("Inserting a new entry...\n");
+  var query = connection.query(
+    "INSERT INTO employee SET ?",
+    {
+      first_name: first_name,
+      last_name: last_name,
+      role_id: role_id,
+      manager_id: manager_id,
+    },
+    function(err, res) {
+      if (err) throw err;
+      console.log(res.affectedRows + " Employee added!\n");
+    }
+  );
 
-//   // logs the actual query being run
-//   console.log(query.sql);
-// }
+  // logs the actual query being run
+  console.log(query.sql);
+}
+
+function addRole(title, salary, department_id) {
+    //   console.log("Inserting a new entry...\n");
+      var query = connection.query(
+        "INSERT INTO role SET ?",
+        {
+          title: title,
+          salary: salary,
+          department_id: department_id,
+        },
+        function(err, res) {
+          if (err) throw err;
+          console.log(res.affectedRows + " Role added!\n");
+        }
+      );
+    
+      // logs the actual query being run
+      console.log(query.sql);
+    }
+
+function addDepartment(name) {
+    //   console.log("Inserting a new entry...\n");
+      var query = connection.query(
+        "INSERT INTO department SET ?",
+        {
+          name: name,
+        },
+        function(err, res) {
+          if (err) throw err;
+          console.log(res.affectedRows + " Department added!\n");
+        }
+      );
+    
+      // logs the actual query being run
+      console.log(query.sql);
+    }
 
 // function updateProduct() {
 //     console.log("Updating bid...\n");
@@ -91,10 +125,6 @@ function readEntry() {
     connection.end();
   });
 }
-// SELECT title, firstName, lastName
-// FROM books
-// LEFT JOIN authors ON books.authorId = authors.id;
-
 
 
 // function askUser(){
@@ -118,8 +148,7 @@ function readEntry() {
 //   })
 // }
 
-// askUser()
-// createEntry("Enjoy the Silence", "Depeche Mode", "Rock");
-// updateEntry();
-// deleteEntry();
-// readEntry();
+addDepartment("Sales")
+addRole("Sales Manager", 60000, 3)
+addEmployee("Wade", "Boggs", 4, null)
+readEntry()
