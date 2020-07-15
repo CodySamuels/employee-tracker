@@ -1,6 +1,8 @@
+// DEPENDENCIES
 var mysql = require("mysql");
 const inquirer = require("inquirer");
 
+// CONNECTS TO THE DATABASE
 var connection = mysql.createConnection({
   host: "localhost",
 
@@ -15,6 +17,7 @@ var connection = mysql.createConnection({
   database: "employee_db"
 });
 
+// SHOWS THE CONNECTION ID AND STARTS THE PROGRAM
 connection.connect(function (err) {
   if (err) throw err;
   console.log("connected as id " + connection.threadId);
@@ -40,6 +43,7 @@ connection.connect(function (err) {
 //   );
 // }
 
+// BEAUTIFUL, FINISHED
 const start = async () => {
   const { userInput } = await inquirer.prompt({
     name: "userInput",
@@ -64,6 +68,7 @@ const start = async () => {
   }
 }
 
+// BEAUTIFUL, FINISHED
 const addInquirer = async () => {
   const { userInput } = await inquirer.prompt({
     name: "userInput",
@@ -128,6 +133,7 @@ const addEmployee = async () => {
   );
 }
 
+// BEAUTIFUL, FINISHED
 const addRole = () => {
   connection.query("SELECT * FROM department", async (err, res) => {
     if (err) throw err
@@ -173,6 +179,8 @@ const addRole = () => {
     );
   })
 }
+
+// BEAUTIFUL, FINISHED
 const addDepartment = async () => {
   const { departmentName } = await inquirer.prompt({
     type: "input",
@@ -193,6 +201,7 @@ const addDepartment = async () => {
   );
 }
 
+// BEAUTIFUL, FINISHED
 const editInquirer = async () => {
   const { userInput } = await inquirer.prompt({
     name: "userInput",
@@ -216,6 +225,7 @@ const editInquirer = async () => {
   }
 }
 
+// UNDER CONSTRUCTION
 const updateDepartment = async () => {
   const { id, name } = await inquirer.prompt([
     {
@@ -354,6 +364,7 @@ const updateEmployee = async () => {
   );
 }
 
+// NEEDS POLISHING
 const viewInquirer = async () => {
   const { userInput } = await inquirer.prompt({
     name: "userInput",
@@ -390,8 +401,13 @@ const viewInquirer = async () => {
   }
 }
 
+// NO WORK DONE. MOST UNDER CONSTRUCTION
+const deleteInquirer = async () => {}
 
 
+
+// TO DO
+// ==============================================================
 // ADD VALIDATES
 // validate:(salary)=>{
 //   if (isNaN(parseInt(salary))) {
