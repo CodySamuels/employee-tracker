@@ -24,24 +24,8 @@ connection.connect(function (err) {
   start();
 });
 
-// 
+// NOT BOILERPLATE CODE BELOW
 // =======================================================
-
-// function deleteEntry() {
-//   console.log("Deleting all Queen entries...\n");
-//   connection.query(
-//     "DELETE FROM songs WHERE ?",
-//     {
-//       artist: "Queen"
-//     },
-//     function(err, res) {
-//       if (err) throw err;
-//       console.log(res.affectedRows + " entry deleted!\n");
-//       // Call readsongs AFTER the DELETE completes
-//       // readProducts();
-//     }
-//   );
-// }
 
 // BEAUTIFUL, FINISHED
 const start = async () => {
@@ -133,18 +117,17 @@ const addEmployee = async () => {
   );
 }
 
-// BEAUTIFUL, FINISHED
+// BROKEN NOW
 const addRole = () => {
   connection.query("SELECT * FROM department", async (err, res) => {
     if (err) throw err
-    const departments = res.map(function (department) {
-        return ({
-            name: department.name,
-            value: department.id
-        })
-    })
-
-    const { role_title, role_salary, department_id } = await inquirer.prompt([
+    const { role_title, role_salary, choice } = await inquirer.prompt([
+      {
+        type: "input",
+        message: "Which department would you like to add the new role to?",
+        name: "role_department",
+        choices: res.map((result) => result.department_name),
+      },
       {
         type: "input",
         message: "What would you like to name the new role?",
@@ -152,23 +135,20 @@ const addRole = () => {
       },
       {
         type: "input",
-        message: "What is this role's salary?",
+        message: "What is this role's salary? Please input a number",
         name: "role_salary",
         validate: (value) => (!isNaN(value) ? true : false),
       },
-      {
-        type: "list",
-        message: "Which department would you like to add it to?",
-        name: "role_department",
-        choices: departments
-      },
-    ])
+    ]);
+
+    var [chosenDepartment] = res.filter((result) => result.department_name === choice);
+
     const query = connection.query(
       "INSERT INTO role SET ?",
       {
         title: role_title,
         salary: role_salary,
-        department_id: departments.value,
+        department_id: chosenDepartment,
       },
       function (err, res) {
         if (err) throw err;
