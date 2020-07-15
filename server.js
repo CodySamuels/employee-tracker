@@ -24,7 +24,7 @@ connection.connect(function (err) {
   start();
 });
 
-// NOT BOILERPLATE CODE BELOW
+// CUSTOM CODE BELOW
 // =======================================================
 
 // BEAUTIFUL, FINISHED
@@ -52,7 +52,7 @@ const start = async () => {
   }
 }
 
-// BEAUTIFUL, FINISHED
+// , IN PROGRESS
 const addInquirer = async () => {
   const { userInput } = await inquirer.prompt({
     name: "userInput",
@@ -60,19 +60,121 @@ const addInquirer = async () => {
     message: "What would you like to add?",
     choices: ["DEPARTMENT", "ROLE", "EMPLOYEE", "GO BACK"]
   })
+
   switch (userInput) {
     case "DEPARTMENT":
-      addDepartment()
+      const { departmentName } = await inquirer.prompt({
+        type: "input",
+        message: "What would you like to name the new department?",
+        name: "departmentName"
+      })
+      const query = connection.query(
+        "INSERT INTO department SET ?",
+        {
+          name: departmentName
+        },
+        function (err, res) {
+          if (err) throw err;
+          console.log("====================================================================")
+          console.log(`The ${departmentName} department added!\n`);
+          start();
+        }
+      );
       break;
+
     case "ROLE":
-      addRole()
+      connection.query("SELECT * FROM department", async (err, res) => {
+        if (err) throw err
+        const answers = await inquirer.prompt([
+          {
+            type: "list",
+            message: "Which department would you like to add the new role to?",
+            name: "department_id",
+            choices: res.map(item => item.name),
+          },
+          {
+            type: "input",
+            message: "What is the title of the new role?",
+            name: "role_title"
+          },
+          {
+            type: "input",
+            message: "What is this role's salary? Please input a number",
+            name: "role_salary",
+            validate: (value) => (!isNaN(value) ? true : false),
+          },
+        ]);
+
+        const chosenItem = res.filter(res => res.name === answers.department_id);
+        const query = connection.query(
+          "INSERT INTO role SET ?",
+          {
+            title: answers.role_title,
+            salary: answers.role_salary,
+            department_id: chosenItem[0].id,
+          },
+          (err, results) => {
+            if (err) throw err;
+            console.log("====================================================================")
+            console.log(`The ${answers.role_title} role has been added!\n`);
+            start();
+          }
+        );
+      })
       break;
+
     case "EMPLOYEE":
-      addEmployee()
+      connection.query("SELECT * FROM role; SELECT * FROM employee", async (err, res) => {
+        if (err) throw err
+        const answers = await inquirer.prompt([
+          {
+            type: "list",
+            message: "Which role would you like to add the new employee to?",
+            name: "role_id",
+            choices: res.map(item => item.title),
+          },
+          {
+            type: "input",
+            message: "What is the employee's first name?",
+            name: "first_name"
+          },
+          {
+            type: "input",
+            message: "What is the employee's last name?",
+            name: "last_name"
+          },
+          {
+            type: "input",
+            message: "Does this employee have a manager? If so, who? Please use manager ID",
+            name: "manager_id"
+          },
+        ]);
+
+        console.log(answers)
+        const chosenItem = res.filter(res => res.name === answers.department_id);
+        console.log(chosenItem[0].id)
+        const query = connection.query(
+          "INSERT INTO role SET ?",
+          {
+            // title: answers.role_title,
+            // salary: answers.role_salary,
+            // department_id: chosenItem[0].id,
+            first_name: first_name,
+            last_name: last_name,
+            role_id: role_id,
+            manager_id: manager_id,
+          },
+          (err, results) => {
+            if (err) throw err;
+            console.log("====================================================================")
+            console.log(`The ${answers.role_title} role has been added!\n`);
+            start();
+          }
+        );
+      })
       break;
     default:
       start();
-      // connection.end();
       break;
   }
 }
@@ -111,71 +213,7 @@ const addEmployee = async () => {
     function (err, res) {
       if (err) throw err;
       console.log("====================================================================")
-      console.log(`The ${first_name} ${last_name} has been added!\n`);
-      start();
-    }
-  );
-}
-
-// BROKEN NOW
-const addRole = () => {
-  connection.query("SELECT * FROM department", async (err, res) => {
-    if (err) throw err
-    const { role_title, role_salary, choice } = await inquirer.prompt([
-      {
-        type: "input",
-        message: "Which department would you like to add the new role to?",
-        name: "role_department",
-        choices: res.map((result) => result.department_name),
-      },
-      {
-        type: "input",
-        message: "What would you like to name the new role?",
-        name: "role_title"
-      },
-      {
-        type: "input",
-        message: "What is this role's salary? Please input a number",
-        name: "role_salary",
-        validate: (value) => (!isNaN(value) ? true : false),
-      },
-    ]);
-
-    var [chosenDepartment] = res.filter((result) => result.department_name === choice);
-
-    const query = connection.query(
-      "INSERT INTO role SET ?",
-      {
-        title: role_title,
-        salary: role_salary,
-        department_id: chosenDepartment,
-      },
-      function (err, res) {
-        if (err) throw err;
-        console.log("====================================================================")
-        console.log(`The ${role_title} role has been added!\n`);
-        start();
-      }
-    );
-  })
-}
-
-// BEAUTIFUL, FINISHED
-const addDepartment = async () => {
-  const { departmentName } = await inquirer.prompt({
-    type: "input",
-    message: "What would you like to name the new department?",
-    name: "departmentName"
-  })
-  const query = connection.query(
-    "INSERT INTO department SET ?",
-    {
-      name: departmentName
-    },
-    function (err, res) {
-      if (err) throw err;
-      console.log("====================================================================")
-      console.log(`The ${departmentName} department added!\n`);
+      console.log(`${first_name} ${last_name} has been added!\n`);
       start();
     }
   );
@@ -382,7 +420,7 @@ const viewInquirer = async () => {
 }
 
 // NO WORK DONE. MOST UNDER CONSTRUCTION
-const deleteInquirer = async () => {}
+const deleteInquirer = async () => { }
 
 
 
