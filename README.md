@@ -26,7 +26,7 @@
 
   
   ## Usage
-  [How to use Video](https://drive.google.com/file/d/18jgKTyMM2ZCRTxbSxK03JAnB8KOthbFP/view?usp=sharing)
+  [How to use Video](https://drive.google.com/file/d/1moc4wEEIvuWe20EglWkNJMCFWK8WvezA/view)
 
     You run it from the command line and follow the prompts. Use node index.js.
   
