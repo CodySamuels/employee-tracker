@@ -22,7 +22,7 @@
 
   ## Installation
   
-    Clone the repo off of GitHub. npm install inquirer. npm install mysql.
+    Clone the repo off of GitHub. npm install inquirer. npm install mysql. Add the schema and the seeds to MySQL.
 
   
   ## Usage
@@ -38,4 +38,4 @@
   
   [Git Hub Username](https://www.github.com/CodySamuels)
   
-  [The Repo](https://github.com/CodySamuels/template-engine)
+  [The Repo](https://github.com/CodySamuels/employee-tracker)
