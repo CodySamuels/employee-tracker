@@ -312,9 +312,9 @@ const editInquirer = async () => {
       })
       break;
 
-    // NEEDS WORK
+    // SEEMS TO BE WORKING WELL. COULD EVENTUALLY CHANGE MANAGER
     case "EMPLOYEES":
-      connection.query("SELECT first_name, last_name, id, role_id, manager_id, CONCAT(employee.first_name, ' ' ,employee.last_name) AS name FROM employee", async (err, res) => {
+      connection.query("SELECT *, first_name, last_name, id, role_id, manager_id, CONCAT(employee.first_name, ' ' ,employee.last_name) AS name FROM employee", async (err, res) => {
         if (err) throw err
         const answers = await inquirer.prompt([
           {
@@ -387,31 +387,35 @@ const editInquirer = async () => {
             );
             break;
 
-          // NEEDS WORK
+          // BEAUTIFUL
           case "ROLE":
-            const roleAnswer = await inquirer.prompt([
-              {
-                type: "input",
-                message: "What would you like to change the role to?",
-                name: "role"
-              }
-            ])
-            const query3 = connection.query(
-              "UPDATE employee SET ? WHERE ?",
-              [
+            connection.query("SELECT * FROM role", async (err, res) => {
+              const roleAnswer = await inquirer.prompt([
                 {
-                  role_id: roleAnswer.role_id
-                },
-                {
-                  id: chosenItem[0].id
+                  type: "list",
+                  message: "What would you like to change the role to?",
+                  choices: res.map(item => item.title),
+                  name: "role",
                 }
-              ],
-              function (err, res) {
-                if (err) throw err;
-                console.log("====================================================================")
-                start();
-              }
-            );
+              ])
+              const chosenItem2 = res.filter(res => res.title === roleAnswer.role);
+              const query3 = connection.query(
+                "UPDATE employee SET ? WHERE ?",
+                [
+                  {
+                    role_id: chosenItem2[0].id
+                  },
+                  {
+                    id: chosenItem[0].id
+                  }
+                ],
+                function (err, res) {
+                  if (err) throw err;
+                  console.log("====================================================================")
+                  start();
+                }
+              );
+            });
             break;
           default:
             start();
