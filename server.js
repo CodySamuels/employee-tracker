@@ -1,6 +1,7 @@
 // DEPENDENCIES
-var mysql = require("mysql");
+const mysql = require("mysql");
 const inquirer = require("inquirer");
+
 
 // CONNECTS TO THE DATABASE
 var connection = mysql.createConnection({
@@ -156,6 +157,7 @@ const addInquirer = async () => {
             }
           },
         ]);
+
         const chosenItem = res.filter(res => res.title === answers.role_id);
         const chosenItem2 = namePull.filter(namePull => namePull.first_name === answers.manager_id);
         const query = connection.query(
