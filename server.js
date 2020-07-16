@@ -151,16 +151,13 @@ const addInquirer = async () => {
             name: "manager_id",
             choices: () => {
               const managerList = namePull.map(item => item.first_name);
-              managerList.push('NULL');
+              managerList.push('None');
               return managerList;
             }
           },
         ]);
         const chosenItem = res.filter(res => res.title === answers.role_id);
         const chosenItem2 = namePull.filter(namePull => namePull.first_name === answers.manager_id);
-        console.log(answers)
-        console.log(chosenItem[0].id);
-        console.log(chosenItem2[0].id);
         const query = connection.query(
           "INSERT INTO employee SET ?",
           {
