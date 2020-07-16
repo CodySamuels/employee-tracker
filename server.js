@@ -52,7 +52,7 @@ const start = async () => {
   }
 }
 
-// , IN PROGRESS
+// IN PROGRESS. NEEDS WORK ON ADDING THE MANAGER FUNCTION
 const addInquirer = async () => {
   const { userInput } = await inquirer.prompt({
     name: "userInput",
@@ -113,7 +113,7 @@ const addInquirer = async () => {
             salary: answers.role_salary,
             department_id: chosenItem[0].id,
           },
-          (err, results) => {
+          (err, res) => {
             if (err) throw err;
             console.log("====================================================================")
             console.log(`The ${answers.role_title} role has been added!\n`);
@@ -123,8 +123,9 @@ const addInquirer = async () => {
       })
       break;
 
+    // STILL COULD USE TWEAKING
     case "EMPLOYEE":
-      connection.query("SELECT * FROM role; SELECT * FROM employee", async (err, res) => {
+      connection.query("SELECT * FROM role", async (err, res) => {
         if (err) throw err
         const answers = await inquirer.prompt([
           {
@@ -136,90 +137,53 @@ const addInquirer = async () => {
           {
             type: "input",
             message: "What is the employee's first name?",
-            name: "first_name"
+            name: "first_name",
           },
           {
             type: "input",
             message: "What is the employee's last name?",
-            name: "last_name"
+            name: "last_name",
           },
           {
+            // BASIC BUT WORKS
             type: "input",
             message: "Does this employee have a manager? If so, who? Please use manager ID",
-            name: "manager_id"
+            name: "manager_id",
+
+            // WIP CODE.
+            // type: "list",
+            // message: "Does this employee have a manager? If so, who? Please use manager ID",
+            // name: "manager_id",
+            // choices: res.map(item => item.first_name)
           },
         ]);
 
-        console.log(answers)
-        const chosenItem = res.filter(res => res.name === answers.department_id);
-        console.log(chosenItem[0].id)
+        const chosenItem = res.filter(res => res.title === answers.role_id);
         const query = connection.query(
-          "INSERT INTO role SET ?",
+          "INSERT INTO employee SET ?",
           {
-            // title: answers.role_title,
-            // salary: answers.role_salary,
-            // department_id: chosenItem[0].id,
-            first_name: first_name,
-            last_name: last_name,
-            role_id: role_id,
-            manager_id: manager_id,
+            first_name: answers.first_name,
+            last_name: answers.last_name,
+            role_id: chosenItem[0].id,
+            manager_id: answers.manager_id,
           },
-          (err, results) => {
+          (err, res) => {
             if (err) throw err;
             console.log("====================================================================")
-            console.log(`The ${answers.role_title} role has been added!\n`);
+            console.log(`${answers.first_name} ${answers.last_name} has been added!\n`);
             start();
           }
         );
       })
       break;
+
     default:
       start();
       break;
   }
 }
 
-// NEEDS A LOT OF WORK TO UPDATE
-const addEmployee = async () => {
-  const { first_name, last_name, role_id, manager_id } = await inquirer.prompt([
-    {
-      type: "input",
-      message: "What is the employee's first name?",
-      name: "first_name",
-    },
-    {
-      type: "input",
-      message: "What is the employee's last name?",
-      name: "last_name",
-    },
-    {
-      type: "input",
-      message: "What role does this employee fill? Please use role ID",
-      name: "role_id",
-    }, {
-      type: "input",
-      message: "Does this employee have a manager? If so, who? Please use manager ID",
-      name: "manager_id",
-    },
-  ])
-  const query = connection.query(
-    "INSERT INTO employee SET ?",
-    {
-      first_name: first_name,
-      last_name: last_name,
-      role_id: role_id,
-      manager_id: manager_id,
-    },
-    function (err, res) {
-      if (err) throw err;
-      console.log("====================================================================")
-      console.log(`${first_name} ${last_name} has been added!\n`);
-      start();
-    }
-  );
-}
-
-// BEAUTIFUL, FINISHED
+// NEEDS WORK
 const editInquirer = async () => {
   const { userInput } = await inquirer.prompt({
     name: "userInput",
@@ -227,13 +191,127 @@ const editInquirer = async () => {
     message: "What would you like to edit?",
     choices: ["DEPARTMENTS", "ROLES", "EMPLOYEES", "GO BACK"]
   })
+
   switch (userInput) {
+
     case "DEPARTMENTS":
-      updateDepartment()
+      connection.query("SELECT * FROM department", async (err, res) => {
+        if (err) throw err
+        const answers = await inquirer.prompt([
+          {
+            type: "list",
+            message: "Which department would you like to edit the name of?",
+            name: "id",
+            choices: res.map(item => item.name),
+          },
+          {
+            type: "input",
+            message: "What would you like to change the name to?",
+            name: "name"
+          }
+        ])
+        const chosenItem = res.filter(res => res.name === answers.id);
+        const query = connection.query(
+          "UPDATE department SET ? WHERE ?",
+          [
+            {
+              name: answers.name
+            },
+            {
+              id: chosenItem[0].id
+            }
+          ],
+          function (err, res) {
+            if (err) throw err;
+            console.log("====================================================================")
+            start();
+          }
+        );
+      })
       break;
+
+    // COULD EVENTUALLY ADD CHANGE DEPARTMENT?
     case "ROLES":
-      updateRole()
+      connection.query("SELECT * FROM role", async (err, res) => {
+        if (err) throw err
+        const answers = await inquirer.prompt([
+          {
+            type: "list",
+            message: "Which role would you like to edit?",
+            name: "id",
+            choices: res.map(item => item.title),
+          },
+          {
+            type: "list",
+            message: "What do you want to change?",
+            name: "selection",
+            choices: ["TITLE", "SALARY"]
+          }
+        ])
+        const chosenItem = res.filter(res => res.title === answers.id);
+        switch (answers.selection) {
+          // BEAUTIFUL
+          case "TITLE":
+            const titleAnswer = await inquirer.prompt([
+              {
+                type: "input",
+                message: "What would you like to change the name to?",
+                name: "title"
+              }
+            ])
+            const query = connection.query(
+              "UPDATE role SET ? WHERE ?",
+              [
+                {
+                  title: titleAnswer.title
+                },
+                {
+                  id: chosenItem[0].id
+                }
+              ],
+              function (err, res) {
+                if (err) throw err;
+                console.log("====================================================================")
+                start();
+              }
+            );
+            break;
+
+          // BEAUTIFUL
+          case "SALARY":
+            const salaryAnswer = await inquirer.prompt([
+              {
+                type: "input",
+                message: "What would you like to change the salary to?",
+                name: "salary"
+              }
+            ])
+            const query2 = connection.query(
+              "UPDATE role SET ? WHERE ?",
+              [
+                {
+                  salary: salaryAnswer.salary
+                },
+                {
+                  id: chosenItem[0].id
+                }
+              ],
+              function (err, res) {
+                if (err) throw err;
+                console.log("====================================================================")
+                start();
+              }
+            );
+            break;
+
+          default:
+            start();
+            break;
+        }
+      })
       break;
+
+    // NEEDS WORK
     case "EMPLOYEES":
       updateEmployee()
       break;
@@ -241,113 +319,6 @@ const editInquirer = async () => {
       start();
       break;
   }
-}
-
-// UNDER CONSTRUCTION
-const updateDepartment = async () => {
-  const { id, name } = await inquirer.prompt([
-    {
-      type: "input",
-      message: "Which department would you like to edit? Please use ID#",
-      name: "id"
-    },
-    {
-      type: "input",
-      message: "What would you like to change the name to?",
-      name: "name"
-    }
-  ])
-  const query = connection.query(
-    "UPDATE department SET ? WHERE ?",
-    [
-      {
-        name: name
-      },
-      {
-        id: id
-      }
-    ],
-    function (err, res) {
-      if (err) throw err;
-      console.log("====================================================================")
-      start();
-    }
-  );
-}
-
-// UNDER CONSTRUCTION
-const updateRole = async () => {
-  const { id, userInput } = await inquirer.prompt([
-    {
-      type: "input",
-      message: "Which role would you like to edit? Please use ID#",
-      name: "id"
-    },
-    {
-      name: "userInput",
-      type: "list",
-      message: "What would you like to edit?",
-      choices: ["TITLE", "SALARY", "DEPARTMENT ID", "GO BACK"]
-    }
-  ])
-  switch (userInput) {
-    case "TITLE":
-      updateRoleTitle(id)
-      break;
-    case "SALARY":
-
-      break;
-    case "DEPARTMENT ID":
-
-      break;
-    default:
-      start();
-      break;
-  }
-
-  const query = connection.query(
-    "UPDATE role SET ? WHERE ?",
-    [
-      {
-        title: title
-      },
-      {
-        id: id
-      }
-    ],
-    function (err, res) {
-      if (err) throw err;
-      console.log("====================================================================")
-      start();
-    }
-  );
-}
-
-// UNDER CONSTRUCTION
-const updateRoleTitle = async (id) => {
-  const { title } = await inquirer.prompt([
-    {
-      type: "input",
-      message: "What would you like to change the title to?",
-      name: "title"
-    }
-  ])
-  const query = connection.query(
-    "UPDATE role SET ? WHERE ?",
-    [
-      {
-        title: title
-      },
-      {
-        id: id
-      }
-    ],
-    function (err, res) {
-      if (err) throw err;
-      console.log("====================================================================")
-      start();
-    }
-  )
 }
 
 // UNDER CONSTRUCTION
@@ -382,7 +353,7 @@ const updateEmployee = async () => {
   );
 }
 
-// NEEDS POLISHING
+// BEAUTIFUL, FINISHED
 const viewInquirer = async () => {
   const { userInput } = await inquirer.prompt({
     name: "userInput",
@@ -392,22 +363,21 @@ const viewInquirer = async () => {
   })
   switch (userInput) {
     case "DEPARTMENTS":
-      connection.query("SELECT * FROM department", function (err, res) {
+      connection.query("SELECT name FROM department", function (err, res) {
         if (err) throw err;
         console.table(res);
         start();
       });
       break;
     case "ROLES":
-      connection.query("SELECT role.id, role.title, role.salary, department.name, role.department_id FROM role INNER JOIN DEPARTMENT ON role.department_id = department.id;", function (err, res) {
+      connection.query("SELECT role.title, role.salary, department.name FROM role INNER JOIN DEPARTMENT ON role.department_id = department.id ORDER BY department.name;", function (err, res) {
         if (err) throw err;
         console.table(res);
         start();
       });
       break;
     case "EMPLOYEES":
-      // "SELECT CONCAT(employee.first_name, ' ' , employee.last_name) AS Employee, role.title, CONCAT(m.first_name, ' ', m.last_name) AS Manager FROM employee e LEFT JOIN employee m ON m.id = e.manager_id INNER JOIN role ON e.role_id=role.id"
-      connection.query("SELECT CONCAT(employee.first_name, ' ' ,employee.last_name) AS Employee, employee.manager_id, role.title, role.salary,department.name FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id;", function (err, res) {
+      connection.query("SELECT CONCAT(employee.first_name, ' ' ,employee.last_name) AS Employee, role.title, role.salary, department.name, CONCAT(manager.first_name,' ', manager.last_name) AS Manager FROM employee LEFT JOIN employee AS Manager ON employee.manager_id = manager.id LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id ORDER BY department.name;", function (err, res) {
         if (err) throw err;
         console.table(res);
         start();
@@ -421,16 +391,3 @@ const viewInquirer = async () => {
 
 // NO WORK DONE. MOST UNDER CONSTRUCTION
 const deleteInquirer = async () => { }
-
-
-
-// TO DO
-// ==============================================================
-// ADD VALIDATES
-// validate:(salary)=>{
-//   if (isNaN(parseInt(salary))) {
-//       console.log('\n Insert a number!')
-//       return false
-//   }
-//   return true
-// }
