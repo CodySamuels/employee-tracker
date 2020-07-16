@@ -27,7 +27,7 @@ connection.connect(function (err) {
 // CUSTOM CODE BELOW
 // =======================================================
 
-// BEAUTIFUL, FINISHED
+// MAIN PAGE
 const start = async () => {
   const { userInput } = await inquirer.prompt({
     name: "userInput",
@@ -52,7 +52,7 @@ const start = async () => {
   }
 }
 
-// IN PROGRESS. NEEDS WORK ON ADDING MANAGER FUNCTIONALITY
+// ADD DATA TO THE DATABASE
 const addInquirer = async () => {
   const { userInput } = await inquirer.prompt({
     name: "userInput",
@@ -62,6 +62,7 @@ const addInquirer = async () => {
   })
 
   switch (userInput) {
+
     case "DEPARTMENT":
       const { departmentName } = await inquirer.prompt({
         type: "input",
@@ -123,10 +124,10 @@ const addInquirer = async () => {
       })
       break;
 
-    // STILL COULD USE TWEAKING
     case "EMPLOYEE":
       connection.query("SELECT * FROM role", async (err, res) => {
-        if (err) throw err
+        connection.query("SELECT * FROM employee", async (err, namePull) => {
+          if (err) throw err;
         const answers = await inquirer.prompt([
           {
             type: "list",
@@ -145,27 +146,28 @@ const addInquirer = async () => {
             name: "last_name",
           },
           {
-            // BASIC BUT WORKS
-            type: "input",
+            type: "list",
             message: "Does this employee have a manager? If so, who? Please use manager ID",
             name: "manager_id",
-
-            // WIP CODE.
-            // type: "list",
-            // message: "Does this employee have a manager? If so, who? Please use manager ID",
-            // name: "manager_id",
-            // choices: res.map(item => item.first_name)
+            choices: () => {
+              const managerList = namePull.map(item => item.first_name);
+              managerList.push('NULL');
+              return managerList;
+            }
           },
         ]);
-
         const chosenItem = res.filter(res => res.title === answers.role_id);
+        const chosenItem2 = namePull.filter(namePull => namePull.first_name === answers.manager_id);
+        console.log(answers)
+        console.log(chosenItem[0].id);
+        console.log(chosenItem2[0].id);
         const query = connection.query(
           "INSERT INTO employee SET ?",
           {
             first_name: answers.first_name,
             last_name: answers.last_name,
             role_id: chosenItem[0].id,
-            manager_id: answers.manager_id,
+            manager_id: chosenItem2[0].id,
           },
           (err, res) => {
             if (err) throw err;
@@ -174,7 +176,8 @@ const addInquirer = async () => {
             start();
           }
         );
-      })
+      });
+    });
       break;
 
     default:
@@ -183,7 +186,7 @@ const addInquirer = async () => {
   }
 }
 
-// NEEDS WORK ADDING EMPLOYEE EDITING
+// PRIMARY EDIT FUNCTION
 const editInquirer = async () => {
   const { userInput } = await inquirer.prompt({
     name: "userInput",
@@ -194,7 +197,6 @@ const editInquirer = async () => {
 
   switch (userInput) {
 
-    // COMPLETED
     case "DEPARTMENTS":
       connection.query("SELECT * FROM department", async (err, res) => {
         if (err) throw err
@@ -429,7 +431,7 @@ const editInquirer = async () => {
   }
 }
 
-// BEAUTIFUL, FINISHED
+// VIEWER FUNCTOIN
 const viewInquirer = async () => {
   const { userInput } = await inquirer.prompt({
     name: "userInput",
@@ -466,4 +468,4 @@ const viewInquirer = async () => {
 }
 
 // NO WORK DONE. MOST UNDER CONSTRUCTION
-const deleteInquirer = async () => { }
+const deleteInquirer = async () => {}
